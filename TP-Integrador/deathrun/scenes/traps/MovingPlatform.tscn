@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://ctfu38mwg1sb"]
+
+[ext_resource type="Script" uid="uid://c3yd358godti8" path="res://scripts/moving_platform.gd" id="1_k3dbn"]
+[ext_resource type="Texture2D" uid="uid://co2q2hhxakvr7" path="res://assets/sprites/tileset.png" id="2_pir7f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pir7f"]
+size = Vector2(53, 9)
+
+[node name="MovingPlatform" type="AnimatableBody2D"]
+script = ExtResource("1_k3dbn")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_pir7f")
+region_enabled = true
+region_rect = Rect2(267, 28, 60, 13)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1.5, 0.5)
+shape = SubResource("RectangleShape2D_pir7f")
