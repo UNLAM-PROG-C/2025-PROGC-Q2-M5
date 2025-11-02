@@ -11,13 +11,15 @@ var selected_trap_index: int = 0
 # UI
 var label: Label = null
 
-# Indicador visual
-var selection_indicator: Sprite2D = null
-
 # Señales
 signal trap_activated_by_master(trap_id)
 
 func _ready():
+	print("=== TrapMaster _ready() iniciado ===")
+	print("  -> NetworkManager.is_multiplayer_active(): ", NetworkManager.is_multiplayer_active())
+	print("  -> multiplayer.is_server(): ", multiplayer.is_server())
+	print("  -> GameManager.is_multiplayer_online(): ", GameManager.is_multiplayer_online())
+	
 	# Verificar si el modo es multijugador
 	if not GameManager.is_multiplayer():
 		print("Trap Master: Modo un jugador - desactivado")
@@ -26,6 +28,7 @@ func _ready():
 	
 	# Buscar el TrapManager en el nivel
 	trap_manager = get_node_or_null("/root/Level01/TrapManager")
+	print("  -> TrapManager encontrado: ", trap_manager != null)
 	
 	if not trap_manager:
 		print("ERROR: No se encontró el TrapManager")
@@ -34,42 +37,20 @@ func _ready():
 	# Esperar a que todas las trampas estén registradas
 	if trap_manager.has_signal("all_traps_registered"):
 		trap_manager.all_traps_registered.connect(_on_all_traps_registered)
+		print("  -> Señal all_traps_registered conectada")
 	
 	# Crear UI
 	create_ui()
 	
 	print("Trap Master iniciado")
 	print("Controles: Q/E para cambiar trampa, ESPACIO para activar")
+	print("=== TrapMaster _ready() completado ===")
+
 
 func _on_all_traps_registered():
 	"""Callback cuando todas las trampas están registradas"""
 	update_available_traps()
-	update_selection_indicator()
 	print("Trap Master: %d trampas disponibles" % available_traps.size())
-
-func update_selection_indicator():
-	"""Actualiza la posición del indicador visual"""
-	if not selection_indicator or not trap_manager:
-		return
-	
-	if available_traps.size() == 0:
-		selection_indicator.hide()
-		return
-	
-	var trap_id = available_traps[selected_trap_index]
-	var trap = trap_manager.get_trap(trap_id)
-	
-	if trap:
-		selection_indicator.global_position = trap.global_position
-		selection_indicator.show()
-		
-		# Animación de parpadeo suave
-		var tween = create_tween()
-		tween.set_loops()
-		tween.tween_property(selection_indicator, "modulate:a", 0.15, 0.7)
-		tween.tween_property(selection_indicator, "modulate:a", 0.4, 0.7)
-	else:
-		selection_indicator.hide()
 
 func create_ui():
 	"""Crea la interfaz visual para el Trap Master"""
@@ -121,7 +102,6 @@ func update_ui():
 
 func _process(_delta):
 	update_available_traps()
-	update_selection_indicator()
 	update_ui()
 
 func _input(event):
@@ -130,13 +110,16 @@ func _input(event):
 	
 	# Cambiar trampa seleccionada con Q/E
 	if event.is_action_pressed("ui_focus_prev"):  # Q por defecto
+		print("TrapMaster: Tecla Q presionada")
 		change_selected_trap(-1)
 	
 	if event.is_action_pressed("ui_focus_next"):  # E por defecto  
+		print("TrapMaster: Tecla E presionada")
 		change_selected_trap(1)
 	
 	# Activar trampa con ESPACIO
 	if event.is_action_pressed("ui_select"):  # ESPACIO
+		print("TrapMaster: ESPACIO presionado")
 		activate_selected_trap()
 
 func change_selected_trap(direction: int):
@@ -152,7 +135,6 @@ func change_selected_trap(direction: int):
 	elif selected_trap_index >= available_traps.size():
 		selected_trap_index = 0
 	
-	update_selection_indicator()
 	print("Trap Master: Trampa %d seleccionada" % available_traps[selected_trap_index])
 
 func activate_selected_trap():
@@ -162,13 +144,32 @@ func activate_selected_trap():
 		return
 	
 	var trap_id = available_traps[selected_trap_index]
+	print("Trap Master: Intentando activar trampa %d" % trap_id)
 	
-	# Enviar comando al TrapManager (COMUNICACIÓN)
-	if trap_manager.activate_trap(trap_id):
-		trap_activated_by_master.emit(trap_id)
-		print("Trap Master: Activando trampa %d" % trap_id)
+	# Si hay conexión de red activa, enviar comando por RPC al TrapManager
+	if NetworkManager.is_multiplayer_active():
+		print("  -> Modo multiplayer activo")
+		print("  -> Soy servidor: ", multiplayer.is_server())
+		print("  -> ID del peer: ", multiplayer.get_unique_id())
+		
+		# Obtener referencia al TrapManager en el servidor
+		var trap_manager_path = "/root/Level01/TrapManager"
+		var server_trap_manager = get_node_or_null(trap_manager_path)
+		
+		if server_trap_manager:
+			# Enviar RPC al TrapManager del servidor
+			print("  -> Enviando RPC al servidor (peer ID: 1)")
+			server_trap_manager.rpc_id(1, "remote_activate_trap", trap_id)
+			print("  -> RPC enviado")
+		else:
+			print("Trap Master: Error - No se encontró TrapManager en: ", trap_manager_path)
 	else:
-		print("Trap Master: No se pudo activar trampa %d" % trap_id)
+		# Modo local
+		if trap_manager.activate_trap(trap_id):
+			trap_activated_by_master.emit(trap_id)
+			print("Trap Master: Activando trampa %d" % trap_id)
+		else:
+			print("Trap Master: No se pudo activar trampa %d" % trap_id)
 
 func update_available_traps():
 	"""Actualiza la lista de trampas disponibles"""

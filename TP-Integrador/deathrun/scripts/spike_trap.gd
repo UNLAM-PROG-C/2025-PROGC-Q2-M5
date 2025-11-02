@@ -51,6 +51,10 @@ func _ready():
 	update_visual()
 
 func _process(delta):
+	# Solo el servidor procesa la lógica de las trampas
+	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
+		return  # El cliente solo ve, no procesa
+	
 	# Gestión del estado de la trampa (CONCURRENCIA)
 	match current_state:
 		TrapState.INACTIVE:
@@ -74,6 +78,10 @@ func _process(delta):
 
 func activate():
 	"""Activa la trampa (puede ser llamada por proximidad o por el Trap Master)"""
+	# Solo el servidor puede activar trampas
+	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
+		return
+	
 	if current_state != TrapState.INACTIVE:
 		return  # No se puede activar si no está inactiva
 	
@@ -82,6 +90,10 @@ func activate():
 
 func deactivate():
 	"""Desactiva la trampa y entra en cooldown"""
+	# Solo el servidor puede desactivar trampas
+	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
+		return
+	
 	set_state(TrapState.COOLDOWN)
 	trap_deactivated.emit(trap_id)
 
@@ -110,6 +122,26 @@ func set_state(new_state: TrapState):
 			animate_down()
 	
 	update_visual()
+	
+		# ESTO ES LO IMPORTANTE: sincronizar por red
+	if multiplayer.is_server() and NetworkManager.is_multiplayer_active():
+		rpc("sync_trap_state", new_state)
+
+@rpc("authority", "call_remote", "reliable")
+func sync_trap_state(state: int):
+	"""Sincroniza el estado de la trampa desde el servidor"""
+	if not multiplayer.is_server():
+		current_state = state as TrapState
+		update_visual()
+		
+		# Sincronizar animación visual
+		match current_state:
+			TrapState.ACTIVATING, TrapState.ACTIVE:
+				if sprite:
+					sprite.position = original_position + Vector2(0, raised_offset)
+			TrapState.INACTIVE, TrapState.COOLDOWN:
+				if sprite:
+					sprite.position = original_position
 
 func animate_up():
 	"""Anima la trampa subiendo"""
@@ -148,6 +180,10 @@ func update_visual():
 
 func _on_body_entered(body):
 	"""Detecta cuando el jugador entra en el área"""
+	# Solo el servidor maneja colisiones
+	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
+		return
+	
 	if body.is_in_group("player"):
 		player_in_range = true
 		
@@ -159,6 +195,10 @@ func _on_body_entered(body):
 
 func _on_body_exited(body):
 	"""Detecta cuando el jugador sale del área"""
+	# Solo el servidor maneja colisiones
+	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
+		return
+	
 	if body.is_in_group("player"):
 		player_in_range = false
 

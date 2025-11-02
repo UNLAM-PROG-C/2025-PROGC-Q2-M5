@@ -1,5 +1,6 @@
-[gd_scene load_steps=9 format=4 uid="uid://bhgroivq8yrjn"]
+[gd_scene load_steps=10 format=4 uid="uid://bhgroivq8yrjn"]
 
+[ext_resource type="Script" uid="uid://ooii6txy3g3q" path="res://scripts/level_01.gd" id="1_10xc4"]
 [ext_resource type="PackedScene" uid="uid://dhwvtttwutrk5" path="res://scenes/player/player.tscn" id="1_i2pqh"]
 [ext_resource type="PackedScene" uid="uid://2a6hfeu3erql" path="res://scenes/traps/SpikeTrap.tscn" id="2_gsbbr"]
 [ext_resource type="Script" uid="uid://dlgew3mpse4t2" path="res://scripts/trap_manager.gd" id="3_qtqmo"]
@@ -178,6 +179,7 @@ physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_hhyrm")
 
 [node name="Level01" type="Node2D"]
+script = ExtResource("1_10xc4")
 
 [node name="player" parent="." instance=ExtResource("1_i2pqh")]
 z_index = 2

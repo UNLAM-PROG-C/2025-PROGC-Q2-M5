@@ -1,12 +1,14 @@
 extends CharacterBody2D
 
 # Constantes de movimiento
-const SPEED = 300.0
-const JUMP_VELOCITY = -500.0
+const SPEED = 180.0
+const JUMP_VELOCITY = -250.0
+const MAX_JUMPS = 2  # Número de saltos permitidos
 
 # Variables de estado
 var is_alive = true
 var respawn_position = Vector2.ZERO
+var jumps_remaining = MAX_JUMPS  # Contador de saltos disponibles
 
 # Señales para comunicación (concepto de IPC/Comunicación)
 signal player_died
@@ -28,17 +30,14 @@ func _physics_process(delta):
 	# Agregar gravedad
 	if not is_on_floor():
 		velocity += get_gravity() * delta
-	# ... resto del código
-	if not is_alive:
-		return
-	
-	# Agregar gravedad
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-	
-	# Manejo del salto
-	if Input.is_action_just_pressed("ui_up") and is_on_floor():
+	else:
+		# Resetear saltos cuando toca el suelo
+		jumps_remaining = MAX_JUMPS
+		
+		# Manejo del salto (con doble salto)
+	if Input.is_action_just_pressed("ui_up") and jumps_remaining > 0:
 		velocity.y = JUMP_VELOCITY
+		jumps_remaining -= 1
 	
 	# Obtener dirección de movimiento (izquierda/derecha)
 	var direction = Input.get_axis("ui_left", "ui_right")
@@ -50,6 +49,17 @@ func _physics_process(delta):
 	
 	# Mover el personaje
 	move_and_slide()
+	
+	# Sincronizar posición en multijugador
+	if multiplayer.is_server() and NetworkManager.is_multiplayer_active():
+		rpc("sync_position", global_position, velocity)
+
+@rpc("authority", "unreliable")
+func sync_position(pos: Vector2, vel: Vector2):
+	"""Sincroniza la posición del jugador desde el servidor"""
+	if not multiplayer.is_server():
+		global_position = pos
+		velocity = vel
 
 func die():
 	"""Mata al jugador y emite señal"""
@@ -72,6 +82,7 @@ func respawn():
 	velocity = Vector2.ZERO
 	is_alive = true
 	modulate = Color(1, 1, 1, 1)  # Color normal
+	jumps_remaining = MAX_JUMPS  # Resetear saltos
 
 func set_checkpoint(new_position: Vector2):
 	"""Establece un nuevo punto de respawn"""
@@ -82,7 +93,3 @@ func _on_trap_area_entered(area):
 	"""Detecta cuando entra en un área de trampa"""
 	if area.is_in_group("traps"):
 		die()
-
-
-func _on_trap_detector_area_entered() -> void:
-	pass # Replace with function body.

@@ -25,19 +25,22 @@ func _on_single_player_pressed():
 	# Guardar el modo de juego en una variable global/autoload
 	GameManager.game_mode = "single"
 	
-	# Cambiar a la escena del nivel
-	get_tree().change_scene_to_file("res://scenes/levels/level_01.tscn")
+	# CAMBIA ESTA RUTA por donde esté tu level_01.tscn
+	# Verifica en el FileSystem la ruta exacta
+	var level_path = "res://scenes/levels/level_01.tscn"
+	
+	if ResourceLoader.exists(level_path):
+		get_tree().change_scene_to_file(level_path)
+	else:
+		print("ERROR: No se encontró el nivel en: ", level_path)
+		print("Verifica la ruta del archivo level_01.tscn")
 
 func _on_multiplayer_pressed():
 	"""Inicia el juego en modo multijugador"""
 	print("Modo: Multijugador")
-	game_mode = "multiplayer"
 	
-	# Guardar el modo de juego
-	GameManager.game_mode = "multiplayer"
-	
-	# Cambiar a la escena del nivel
-	get_tree().change_scene_to_file("res://scenes/levels/level_01.tscn")
+	# Ir al lobby de conexión para multijugador online
+	get_tree().change_scene_to_file("res://scenes/LobbyMenu.tscn")
 
 func _on_quit_pressed():
 	"""Cierra el juego"""

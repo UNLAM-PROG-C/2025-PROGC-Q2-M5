@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.5", "GL Compatibility")
 [autoload]
 
 GameManager="*res://scripts/game_manager.gd"
+NetworkManager="*res://scripts/network_manager.gd"
 
 [input]
 

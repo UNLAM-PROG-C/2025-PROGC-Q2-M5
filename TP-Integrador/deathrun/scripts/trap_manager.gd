@@ -17,7 +17,7 @@ var stats = {
 
 # Señales para comunicación con otros sistemas
 signal trap_registered(trap_id, trap_node)
-signal all_traps_registered(count)
+signal all_traps_registered()
 signal trap_state_changed(trap_id, state_name)
 signal player_hit_trap(trap_id)
 
@@ -36,20 +36,14 @@ func register_all_traps():
 		register_trap(trap)
 	
 	stats.total_traps = registered_traps.size()
-	all_traps_registered.emit(stats.total_traps)
+	all_traps_registered.emit()
 	
-	print("TrapManager: Registradas %d trampas" % stats.total_traps)
-
 func register_trap(trap_node):
 	"""Registra una trampa y conecta sus señales (COMUNICACIÓN)"""
 	if not trap_node.has_method("get_state_name"):
 		return  # No es una trampa válida
 	
 	var trap_id = trap_node.trap_id
-	
-	if trap_id in registered_traps:
-		print("TrapManager: Advertencia - Trampa ID %d ya registrada" % trap_id)
-		return
 	
 	# Guardar referencia
 	registered_traps[trap_id] = trap_node
@@ -85,7 +79,6 @@ func _on_trap_deactivated(trap_id):
 	if trap:
 		var state = trap.get_state_name()
 		trap_state_changed.emit(trap_id, state)
-		print("Trampa %d DESACTIVADA (Total activas: %d)" % [trap_id, stats.active_traps])
 
 func _on_player_hit(trap_id):
 	"""Callback cuando una trampa golpea al jugador"""
@@ -104,6 +97,15 @@ func activate_trap(trap_id: int) -> bool:
 		return true
 	
 	return false
+
+# Método RPC para activación remota desde el cliente
+@rpc("any_peer", "call_remote", "reliable")
+func remote_activate_trap(trap_id: int):
+	if not multiplayer.is_server():
+		return
+	
+	activate_trap(trap_id)
+	
 
 func get_trap(trap_id: int):
 	"""Obtiene la referencia a una trampa por su ID"""
@@ -134,23 +136,3 @@ func get_available_traps() -> Array:
 func get_stats() -> Dictionary:
 	"""Retorna las estadísticas actuales"""
 	return stats.duplicate()
-
-func print_status():
-	"""Debug: imprime el estado de todas las trampas"""
-	print("\n=== TRAP MANAGER STATUS ===")
-	print("Total trampas: %d" % stats.total_traps)
-	print("Trampas activas: %d" % stats.active_traps)
-	print("Total activaciones: %d" % stats.total_activations)
-	print("Total hits: %d" % stats.total_hits)
-	print("\nEstado individual:")
-	
-	for trap_id in registered_traps:
-		var trap = registered_traps[trap_id]
-		print("  Trampa %d: %s" % [trap_id, trap.get_state_name()])
-	
-	print("===========================\n")
-
-# Debug: presiona F12 para ver el estado
-func _input(event):
-	if event.is_action_pressed("ui_cancel"):  # ESC key
-		print_status()

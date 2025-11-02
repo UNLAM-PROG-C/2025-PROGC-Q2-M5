@@ -3,7 +3,7 @@ extends Node
 # Singleton para gestionar el estado global del juego
 
 # Modo de juego actual
-var game_mode: String = "single"  # "single" o "multiplayer"
+var game_mode: String = "single"  # "single", "multiplayer" (local), "multiplayer_online"
 
 # Estadísticas globales
 var total_deaths: int = 0
@@ -13,8 +13,12 @@ func _ready():
 	print("GameManager iniciado")
 
 func is_multiplayer() -> bool:
-	"""Retorna true si el modo es multijugador"""
-	return game_mode == "multiplayer"
+	"""Retorna true si el modo es multijugador (local u online)"""
+	return game_mode == "multiplayer" or game_mode == "multiplayer_online"
+
+func is_multiplayer_online() -> bool:
+	"""Retorna true si el modo es multijugador online"""
+	return game_mode == "multiplayer_online"
 
 func is_single_player() -> bool:
 	"""Retorna true si el modo es un jugador"""
