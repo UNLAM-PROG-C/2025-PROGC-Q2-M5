@@ -31,23 +31,21 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 	else:
-		# Resetear saltos cuando toca el suelo
 		jumps_remaining = MAX_JUMPS
-		
-		# Manejo del salto (con doble salto)
-	if Input.is_action_just_pressed("ui_up") and jumps_remaining > 0:
+	
+	# Salto con W
+	if Input.is_action_just_pressed("move_up") and jumps_remaining > 0:
 		velocity.y = JUMP_VELOCITY
 		jumps_remaining -= 1
 	
-	# Obtener dirección de movimiento (izquierda/derecha)
-	var direction = Input.get_axis("ui_left", "ui_right")
+	# Movimiento con A/D
+	var direction = Input.get_axis("move_left", "move_right")
 	
 	if direction:
 		velocity.x = direction * SPEED
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 	
-	# Mover el personaje
 	move_and_slide()
 	
 	# Sincronizar posición en multijugador

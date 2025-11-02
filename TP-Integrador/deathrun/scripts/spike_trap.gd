@@ -137,11 +137,9 @@ func sync_trap_state(state: int):
 		# Sincronizar animación visual
 		match current_state:
 			TrapState.ACTIVATING, TrapState.ACTIVE:
-				if sprite:
-					sprite.position = original_position + Vector2(0, raised_offset)
+				animate_up()
 			TrapState.INACTIVE, TrapState.COOLDOWN:
-				if sprite:
-					sprite.position = original_position
+				animate_down()
 
 func animate_up():
 	"""Anima la trampa subiendo"""

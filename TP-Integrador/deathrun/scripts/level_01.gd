@@ -25,14 +25,16 @@ func setup_multiplayer():
 		# El player funciona normalmente
 		
 	else:
-		# CLIENT: Es el Trap Master
-		print("Nivel: Configurado como CLIENT (Trap Master)")
-		
-		# Desactivar el control del jugador
+		# CLIENT: Trap Master
 		if player:
-			# El jugador existe visualmente pero no se controla
 			player.set_physics_process(false)
-			# Opcional: hacer el jugador semi-transparente para indicar que no es local
-			# player.modulate = Color(1, 1, 1, 0.7)
+			
+			# Desactivar cámara del jugador
+			var player_camera = player.get_node_or_null("Camera2D")
+			if player_camera:
+				player_camera.enabled = false
 		
-		# El TrapMaster funciona normalmente
+		# Crear cámara móvil para Trap Master
+		var camera = preload("res://scripts/trap_master_camera.gd").new()
+		camera.position = Vector2(-850, 400)  # Centro inicial (ajustar)
+		add_child(camera)
