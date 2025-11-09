@@ -40,8 +40,6 @@ func _ready():
 	original_position = sprite.position
 	
 	# En modo multijugador, desactivar activación automática
-	if GameManager.is_multiplayer():
-		auto_activate = false
 	
 	# Conectar señales de detección
 	body_entered.connect(_on_body_entered)

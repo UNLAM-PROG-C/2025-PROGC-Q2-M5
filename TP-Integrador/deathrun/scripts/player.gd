@@ -111,6 +111,7 @@ func die() -> void:
 
 	# Espera a que termine la subida
 	await tween.finished
+	GameManager.register_death()
 
 	respawn()
 

@@ -18,13 +18,7 @@ func _ready():
 	print("=== TrapMaster _ready() iniciado ===")
 	print("  -> NetworkManager.is_multiplayer_active(): ", NetworkManager.is_multiplayer_active())
 	print("  -> multiplayer.is_server(): ", multiplayer.is_server())
-	print("  -> GameManager.is_multiplayer_online(): ", GameManager.is_multiplayer_online())
 	
-	# Verificar si el modo es multijugador
-	if not GameManager.is_multiplayer():
-		print("Trap Master: Modo un jugador - desactivado")
-		queue_free()  # Eliminar este nodo si no es multijugador
-		return
 	
 	# Buscar el TrapManager en el nivel
 	trap_manager = get_node_or_null("/root/Level01/TrapManager")

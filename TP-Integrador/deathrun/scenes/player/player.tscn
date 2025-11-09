@@ -85,30 +85,31 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dovo2"]
-size = Vector2(42, 56)
+size = Vector2(42, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gmlin"]
-size = Vector2(41, 55.5)
+size = Vector2(41, 43.5)
 
 [node name="player" type="CharacterBody2D" groups=["player"]]
 script = ExtResource("1_8afob")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(5.5, 7.75)
+light_mask = 21
+position = Vector2(2.0000005, 4)
 scale = Vector2(1.2619047, 1.3163265)
 sprite_frames = SubResource("SpriteFrames_5gtgg")
-animation = &"Death"
 autoplay = "default"
-frame_progress = 0.44670406
+frame = 1
+frame_progress = 0.6573855
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(1, 8)
+position = Vector2(1, 2)
 shape = SubResource("RectangleShape2D_dovo2")
 
 [node name="TrapDetector" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="TrapDetector"]
-position = Vector2(1.5, 8.25)
+position = Vector2(1.5, 2.25)
 shape = SubResource("RectangleShape2D_gmlin")
 
 [connection signal="area_entered" from="TrapDetector" to="." method="_on_trap_detector_area_entered"]

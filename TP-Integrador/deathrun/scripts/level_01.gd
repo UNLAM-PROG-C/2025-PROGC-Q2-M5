@@ -5,13 +5,12 @@ extends Node2D
 
 func _ready():
 	setup_multiplayer()
+	GameManager.start_level_stats()
+
 
 func setup_multiplayer():
 	"""Configura el nivel según el modo de juego"""
 	
-	if not GameManager.is_multiplayer_online():
-		# Modo local o single player - todo funciona normal
-		return
 	
 	# Modo multijugador online
 	if multiplayer.is_server():
