@@ -66,8 +66,8 @@ func _physics_process(delta: float) -> void:
 		if anim_sprite.animation != "Running":
 			anim_sprite.play("Running")
 	elif on_floor and not moving_h:
-		if anim_sprite.animation != "Default":
-			anim_sprite.play("Default")
+		if anim_sprite.animation != "default":
+			anim_sprite.play("default")
 	# (Si querés, después sumamos "Jump"/"Fall" en el aire)
 
 	# ===== Sincronización multijugador =====
@@ -91,13 +91,13 @@ func die() -> void:
 	# Detener movimiento y desactivar colisión mientras "muere"
 	velocity = Vector2.ZERO
 	if collider:
-		collider.disabled = true
+		collider.set_deferred("disabled", true)
 
 	# Animación de muerte si existe
 	if "Death" in anim_sprite.sprite_frames.get_animation_names():
 		anim_sprite.play("Death")
 	else:
-		anim_sprite.play("Default")
+		anim_sprite.play("default")
 
 	# ==== Efecto "irse al cielo" (sin desvanecer) ====
 	var rise_height: float = 80.0      # cuánto sube en píxeles
