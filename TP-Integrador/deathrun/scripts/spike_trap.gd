@@ -40,7 +40,7 @@ func _ready():
 	original_position = sprite.position
 	
 	# En modo multijugador, desactivar activación automática
-	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
+	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
 		auto_activate = false
 		
 	# Conectar señales de detección
