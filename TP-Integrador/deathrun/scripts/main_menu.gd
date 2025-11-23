@@ -19,7 +19,7 @@ func _on_single_player_pressed():
 	print("Modo: Un Jugador")
 	
 	# Guardar el modo de juego en una variable global/autoload
-	GameManager.game_mode = "single"
+	GameManager.singleplayer = true
 	
 	# CAMBIA ESTA RUTA por donde esté tu level_01.tscn
 	# Verifica en el FileSystem la ruta exacta

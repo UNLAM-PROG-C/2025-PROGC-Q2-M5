@@ -91,7 +91,7 @@ func start_game_as_host():
 	print("[HOST] Iniciando juego para todos los jugadores...")
 	
 	# Configurar modo de juego
-	GameManager.game_mode = "multiplayer_online"
+	GameManager.singleplayer = false
 	
 	# Notificar al cliente que cambie de escena (RPC)
 	rpc("client_start_game")
@@ -112,7 +112,7 @@ func client_start_game():
 		return
 	
 	# Configurar modo de juego
-	GameManager.game_mode = "multiplayer_online"
+	GameManager.singleplayer = false
 	
 	# Cambiar escena
 	tree.change_scene_to_file("res://scenes/levels/Level_01.tscn")

@@ -3,7 +3,7 @@ extends Node
 # --- tu config actual ---
 @export var victory_ui_scene: PackedScene = null  # (ya no lo usamos en single)
 
-var game_mode: String = "single"
+var singleplayer: bool = true
 var total_deaths: int = 0
 var total_games: int = 0
 
