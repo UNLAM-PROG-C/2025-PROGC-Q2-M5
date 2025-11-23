@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://bhgroivq8yrjn"]
+[gd_scene load_steps=23 format=4 uid="uid://bhgroivq8yrjn"]
 
 [ext_resource type="Script" uid="uid://ooii6txy3g3q" path="res://scripts/level_01.gd" id="1_10xc4"]
 [ext_resource type="PackedScene" uid="uid://dhwvtttwutrk5" path="res://scenes/player/player.tscn" id="1_i2pqh"]
@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" uid="uid://bbs0qqsaunrk1" path="res://scenes/environment/portal_win.tscn" id="13_shv8k"]
 [ext_resource type="AudioStream" uid="uid://cttku7t3okph2" path="res://Audio/Crash Bandicoot 1 Theme.mp3" id="14_xg7sb"]
 [ext_resource type="PackedScene" uid="uid://bxi5i80plfr3d" path="res://scenes/traps/crusher_trap.tscn" id="15_wa6rg"]
+[ext_resource type="Script" uid="uid://ddpw5414ub51l" path="res://scripts/hud.gd" id="16_teq4k"]
+[ext_resource type="Texture2D" uid="uid://cf7qkhv0a265t" path="res://assets/sprites/corazon.png" id="17_o03p7"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hhyrm"]
 texture = ExtResource("5_hhyrm")
@@ -1314,3 +1316,34 @@ trap_id = 12
 
 [node name="CrusherTrap2" parent="." instance=ExtResource("15_wa6rg")]
 position = Vector2(2793, 320)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("16_teq4k")
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Corazon1" type="TextureRect" parent="HUD/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("17_o03p7")
+stretch_mode = 5
+
+[node name="Corazon2" type="TextureRect" parent="HUD/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("17_o03p7")
+stretch_mode = 5
+
+[node name="Corazon3" type="TextureRect" parent="HUD/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("17_o03p7")
+stretch_mode = 5

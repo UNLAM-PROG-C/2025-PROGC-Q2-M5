@@ -55,7 +55,7 @@ func _on_trigger_enter(body: Node) -> void:
 		_try_start_cycle_server()
 
 
-func _on_trigger_exit(body: Node) -> void:
+func _on_trigger_exit() -> void:
 	# solo usamos esto para saber si hay alguien debajo (opcional)
 	pass
 

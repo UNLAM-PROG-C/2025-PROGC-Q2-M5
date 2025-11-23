@@ -6,6 +6,9 @@ const JUMP_VELOCITY: float = -250.0
 const MAX_JUMPS: int = 2
 # Umbral para considerar "quieto" (evita ruido/velocidad residual)
 const IDLE_EPS: float = 5.0
+# Variables de vidas
+var vidas_actuales: int = 3
+const VIDAS_MAXIMAS: int = 3
 
 # ===== Estado =====
 var is_alive: bool = true
@@ -19,9 +22,10 @@ var jumps_remaining: int = MAX_JUMPS
 
 # ===== Señales =====
 signal player_died
-signal player_reached_checkpoint
+signal vidas_changed(vidas_restantes: int)
 
 func _ready() -> void:
+	add_to_group("player")
 	respawn_position = global_position
 
 func _physics_process(delta: float) -> void:
@@ -84,36 +88,43 @@ func sync_position(pos: Vector2, vel: Vector2) -> void:
 func die() -> void:
 	if not is_alive:
 		return
-
 	is_alive = false
 	player_died.emit()
-
+	
 	# Detener movimiento y desactivar colisión mientras "muere"
 	velocity = Vector2.ZERO
 	if collider:
 		collider.set_deferred("disabled", true)
-
+	
 	# Animación de muerte si existe
 	if "Death" in anim_sprite.sprite_frames.get_animation_names():
 		anim_sprite.play("Death")
 	else:
 		anim_sprite.play("default")
-
+	
 	# ==== Efecto "irse al cielo" (sin desvanecer) ====
-	var rise_height: float = 80.0      # cuánto sube en píxeles
-	var rise_duration: float = 0.8      # duración de la subida en segundos
+	var rise_height: float = 80.0
+	var rise_duration: float = 0.8
 	var start_pos := global_position
 	var end_pos := start_pos + Vector2(0, -rise_height)
-
+	
 	var tween := get_tree().create_tween()
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(self, "global_position", end_pos, rise_duration)
-
+	
 	# Espera a que termine la subida
 	await tween.finished
+	
 	GameManager.register_death()
-
-	respawn()
+	
+	# ===== NUEVA LÓGICA DE VIDAS =====
+	vidas_actuales -= 1
+	vidas_changed.emit(vidas_actuales)  # Emitir señal para actualizar UI
+	
+	if vidas_actuales > 0:
+		respawn()
+	else:
+		game_over()
 
 func respawn() -> void:
 	# Volver a animación base
@@ -128,12 +139,9 @@ func respawn() -> void:
 	if collider:
 		collider.disabled = false
 
-
-
-func set_checkpoint(new_position: Vector2) -> void:
-	respawn_position = new_position
-	player_reached_checkpoint.emit()
-
+func game_over() -> void:
+	get_tree().change_scene_to_file("res://scenes/GameOver.tscn")
+	
 func _on_trap_area_entered(area: Node) -> void:
 	if area.is_in_group("traps"):
 		die()
