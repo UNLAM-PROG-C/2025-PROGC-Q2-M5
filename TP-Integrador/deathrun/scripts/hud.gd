@@ -7,6 +7,11 @@ extends CanvasLayer
 ]
 
 func _ready():
+	# Verificar si el jugador es trap_master
+	if NetworkManager.player_role == "trap_master":
+		visible = false
+		return
+		
 	# Conectar a la señal del jugador
 	var player = get_tree().get_first_node_in_group("player")
 	if player:
