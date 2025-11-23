@@ -365,7 +365,7 @@ func _on_server_disconnected():
 
 func is_multiplayer_active():
 	"""Verifica si hay una sesión multijugador activa"""
-	return multiplayer.multiplayer_peer != null
+	return GameManager.game_mode != "single"
 
 func get_player_id():
 	"""Retorna el ID único del jugador"""

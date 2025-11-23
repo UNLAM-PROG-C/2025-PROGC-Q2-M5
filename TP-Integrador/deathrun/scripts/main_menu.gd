@@ -6,9 +6,6 @@ extends Control
 @onready var btn_quit = $VBoxContainer/BtnQuit
 @onready var title_label = $Title
 
-# Variable global para el modo de juego
-var game_mode: String = "single"  # "single" o "multiplayer"
-
 func _ready():
 	# Conectar señales de los botones
 	btn_single_player.pressed.connect(_on_single_player_pressed)
@@ -20,7 +17,6 @@ func _ready():
 func _on_single_player_pressed():
 	"""Inicia el juego en modo un jugador"""
 	print("Modo: Un Jugador")
-	game_mode = "single"
 	
 	# Guardar el modo de juego en una variable global/autoload
 	GameManager.game_mode = "single"
@@ -28,6 +24,7 @@ func _on_single_player_pressed():
 	# CAMBIA ESTA RUTA por donde esté tu level_01.tscn
 	# Verifica en el FileSystem la ruta exacta
 	var level_path = "res://scenes/levels/level_01.tscn"
+	
 	
 	if ResourceLoader.exists(level_path):
 		get_tree().change_scene_to_file(level_path)
