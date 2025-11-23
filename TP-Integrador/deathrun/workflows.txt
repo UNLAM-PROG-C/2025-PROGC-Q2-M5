@@ -1,0 +1,232 @@
+1. Workflow del Menú en el archivo main.menu.gd
+
+MainMenu (Inicio)
+    │
+    ├─► [Botón Single Player]
+    │   └─► GameManager.game_mode = "single"
+    │       └─► Cambia a Level_01.tscn
+    │
+    ├─► [Botón Multiplayer]
+    │   └─► Cambia a LobbyMenu.tscn
+    │
+    └─► [Botón Quit]
+        └─► get_tree().quit()
+
+Define el modo de juego en el GameManager global.
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+2. Workflow de conexión multiplayer en el archivo lobby_menu.gd
+
+LobbyMenu
+    │
+    ├─► [HOST: Botón "Host"]
+    │   └─► NetworkManager.create_server(port=7777)
+    │       ├─► Crea ENetMultiplayerPeer como servidor
+    │       ├─► is_host = true
+    │       ├─► player_role = "runner" (el host controla al corredor)
+    │       └─► Emite señal: server_started
+    │           └─► LobbyMenu: "Esperando jugador..."
+    │               │
+    │               └─► Cuando cliente se conecta:
+    │                   ├─► Señal: player_connected
+    │                   ├─► LobbyMenu: "Jugador conectado!"
+    │                   └─► start_game() → Level_01.tscn
+    │
+    └─► [CLIENT: Botón "Join"]
+        └─► NetworkManager.join_server(ip, port=7777)
+            ├─► Crea ENetMultiplayerPeer como cliente
+            ├─► is_host = false
+            ├─► player_role = "trap_master" (el cliente activa trampas)
+            └─► Intenta conectar
+                ├─► [Éxito] → connection_succeeded
+                │   └─► start_game() → Level_01.tscn
+                └─► [Fallo] → connection_failed
+                    └─► LobbyMenu: "Error: No se pudo conectar"
+
+Arquitectura de red:
+Modelo: Cliente-Servidor (ENet)
+Puerto: 7777 (por defecto)
+Máximo jugadores: 2
+Roles automáticos:
+HOST = Runner (controla el personaje)
+CLIENT = Trap Master (activa trampas)
+Señales importantes:
+server_started - Servidor creado exitosamente
+player_connected(id) - Otro jugador se conectó
+connection_succeeded - Cliente conectado al servidor
+connection_failed - Falló la conexión
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+3. Workflow de movimientos y activación de trampas
+    3.1 Movimiento del runner en el archivo player.gd
+
+Player (_physics_process)
+    │
+    ├─► [Verificar si está vivo]
+    │   └─► if not is_alive: return
+    │
+    ├─► [Detectar caída al vacío]
+    │   └─► if y > 700: die()
+    │
+    ├─► [Aplicar gravedad]
+    │   └─► if not is_on_floor(): velocity += gravity * delta
+    │
+    ├─► [Sistema de doble salto]
+    │   ├─► En el suelo: jumps_remaining = MAX_JUMPS (2)
+    │   └─► Input "move_up" pressed y jumps_remaining > 0:
+    │       ├─► velocity.y = JUMP_VELOCITY (-250)
+    │       └─► jumps_remaining -= 1
+    │
+    ├─► [Movimiento horizontal]
+    │   └─► direction = Input.get_axis("move_left", "move_right")
+    │       └─► velocity.x = direction * SPEED (180)
+    │
+    ├─► [Aplicar movimiento]
+    │   └─► move_and_slide()
+    │
+    ├─► [Actualizar animaciones]
+    │   ├─► En suelo + moviendo: "Running"
+    │   ├─► En suelo + quieto: "Default"
+    │   └─► flip_h según dirección
+    │
+    └─► [Sincronización multiplayer]
+        └─► if multiplayer.is_server():
+            └─► rpc("sync_position", global_position, velocity)
+
+Función de muerte:
+die()
+    │
+    ├─► is_alive = false
+    ├─► velocity = Vector2.ZERO
+    ├─► Desactivar colisión (collider.disabled = true)
+    ├─► Reproducir animación "Death"
+    │
+    ├─► [Efecto visual: subir al cielo]
+    │   └─► Tween: sube 80 píxeles en 0.8 segundos
+    │
+    ├─► GameManager.register_death()
+    └─► respawn()
+        ├─► global_position = respawn_position
+        ├─► is_alive = true
+        └─► Reactivar colisión
+
+
+3.2 Sistema de Trampas en los archivos:
+trap_manager.gd, spike_trap.gd, fire_trap.gd, etc.
+
+Arquitectura:
+TrapManager (Singleton del nivel)
+    │
+    ├─► [_ready()]
+    │   └─► register_all_traps()
+    │       └─► Busca todos los nodos en grupo "traps"
+    │           └─► Para cada trampa:
+    │               ├─► registered_traps[trap_id] = trap_node
+    │               └─► Conectar señales:
+    │                   ├─► trap_activated
+    │                   ├─► trap_deactivated
+    │                   └─► player_hit
+    │
+    └─► [API para Trap Master]
+        ├─► activate_trap(trap_id) - Activación local
+        └─► remote_activate_trap(trap_id) - RPC desde cliente
+            └─► @rpc("any_peer", "call_remote", "reliable")
+
+
+Estado de una Trampa (Spike Trap):
+SpikeTrap (Máquina de estados)
+    │
+    └─► Estados:
+        │
+        ├─► INACTIVE (Gris)
+        │   └─► Esperando activación
+        │       ├─► Auto: player_in_range y auto_activate
+        │       └─► Manual: force_activate() desde Trap Master
+        │
+        ├─► ACTIVATING (Amarillo)
+        │   ├─► Duración: activation_delay (0.5s)
+        │   ├─► Animación: sube (raised_offset = -20px)
+        │   └─► Colisión: DESACTIVADA (advertencia visual)
+        │
+        ├─► ACTIVE (Rojo)
+        │   ├─► Duración: active_duration (2.0s)
+        │   ├─► Colisión: ACTIVADA
+        │   └─► if player.body_entered: player.die()
+        │
+        └─► COOLDOWN (Azul)
+            ├─► Duración: cooldown_duration (1.0s)
+            ├─► Animación: baja a posición original
+            └─► Vuelve a INACTIVE
+
+Sincronización multiplayer de trampas:
+Servidor (Host)
+    │
+    ├─► Procesa lógica de trampa: set_state(new_state)
+    └─► Sincroniza a clientes: rpc("sync_trap_state", new_state)
+        │
+        └─► Cliente recibe:
+            ├─► current_state = new_state
+            ├─► update_visual() (color)
+            └─► animate_up() / animate_down()
+
+
+3.3 Control del Trap Master en el archivo trap_master.gd
+
+TrapMaster (_input)
+    │
+    ├─► [Navegación entre trampas]
+    │   ├─► Q (ui_focus_prev): change_selected_trap(-1)
+    │   └─► E (ui_focus_next): change_selected_trap(+1)
+    │
+    └─► [Activar trampa seleccionada]
+        └─► ESPACIO (ui_select): activate_selected_trap()
+            │
+            ├─► [Modo Local]
+            │   └─► trap_manager.activate_trap(trap_id)
+            │
+            └─► [Modo Multiplayer]
+                └─► trap_manager.rpc_id(1, "remote_activate_trap", trap_id)
+                    │
+                    └─► Servidor recibe RPC:
+                        └─► activate_trap(trap_id)
+                            └─► trap.force_activate()
+
+UI del Trap Master:
+Panel en CanvasLayer
+    │
+    ├─► Controles: Q/E = Cambiar | ESPACIO = Activar
+    ├─► Trampa seleccionada: ID y Estado
+    ├─► Contador: (1/5) trampas
+    └─► Estadísticas:
+        ├─► Activas: 2/5
+        ├─► Activaciones totales: 12
+        └─► Hits: 3
+
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+6.3 Comunicación por Señales (Observer Pattern)
+
+Señales del sistema:
+    │
+    ├─► NetworkManager:
+    │   ├─► player_connected(id)
+    │   ├─► player_disconnected(id)
+    │   ├─► connection_succeeded
+    │   └─► connection_failed
+    │
+    ├─► Player:
+    │   ├─► player_died
+    │   └─► player_reached_checkpoint
+    │
+    └─► Trap:
+        ├─► trap_activated(trap_id)
+        ├─► trap_deactivated(trap_id)
+        └─► player_hit(trap_id)
+
+    

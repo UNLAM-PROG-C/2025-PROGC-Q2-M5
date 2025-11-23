@@ -58,8 +58,8 @@ func _on_server_started():
 func _on_connection_succeeded():
 	"""Cliente conectado al servidor"""
 	label_status.text = "Conectado! Iniciando juego..."
-	await get_tree().create_timer(1.0).timeout
-	start_game()
+	#await get_tree().create_timer(1.0).timeout
+	#start_game()
 
 func _on_connection_failed():
 	"""Falló la conexión"""
@@ -69,14 +69,50 @@ func _on_connection_failed():
 
 func _on_player_connected():
 	"""Otro jugador se conectó (solo host recibe esto)"""
+	# Solo el HOST coordina el inicio
+	if not multiplayer.is_server():
+		return
+	
 	label_status.text = "Jugador conectado! Iniciando juego..."
 	await get_tree().create_timer(1.0).timeout
-	start_game()
+	start_game_as_host()
 
-func start_game():
-	"""Iniciar el juego"""
-	# Configurar el modo como multijugador online
+func start_game_as_host():
+	"""Solo el HOST ejecuta esto para iniciar el juego"""
+	if not multiplayer.is_server():
+		return
+	
+	# Verificar que seguimos en el árbol
+	var tree = get_tree()
+	if tree == null:
+		push_error("[HOST] No se puede iniciar: nodo removido del árbol")
+		return
+	
+	print("[HOST] Iniciando juego para todos los jugadores...")
+	
+	# Configurar modo de juego
 	GameManager.game_mode = "multiplayer_online"
 	
-	# Cambiar a la escena del nivel
-	get_tree().change_scene_to_file("res://scenes/levels/Level_01.tscn")
+	# Notificar al cliente que cambie de escena (RPC)
+	rpc("client_start_game")
+	
+	# Cambiar nuestra propia escena
+	tree.change_scene_to_file("res://scenes/levels/Level_01.tscn")
+	
+	
+@rpc("authority", "call_remote", "reliable")
+func client_start_game():
+	"""RPC que el cliente recibe para iniciar el juego"""
+	print("[CLIENT] Servidor inició el juego, cambiando escena...")
+	
+	# Verificar que seguimos en el árbol
+	var tree = get_tree()
+	if tree == null:
+		push_error("[CLIENT] No se puede cambiar escena: nodo removido")
+		return
+	
+	# Configurar modo de juego
+	GameManager.game_mode = "multiplayer_online"
+	
+	# Cambiar escena
+	tree.change_scene_to_file("res://scenes/levels/Level_01.tscn")

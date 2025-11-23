@@ -1216,18 +1216,19 @@ zoom = Vector2(1.5, 1.5)
 
 [node name="SpikeTrap" parent="." instance=ExtResource("2_gsbbr")]
 position = Vector2(-691, 480)
+trap_id = 1
 
 [node name="SpikeTrap2" parent="." instance=ExtResource("2_gsbbr")]
 position = Vector2(-379, 480)
-trap_id = 1
+trap_id = 2
 
 [node name="SpikeTrap3" parent="." instance=ExtResource("2_gsbbr")]
 position = Vector2(-240, 480)
-trap_id = 2
+trap_id = 3
 
 [node name="SpikeTrap4" parent="." instance=ExtResource("2_gsbbr")]
 position = Vector2(-60, 480)
-trap_id = 3
+trap_id = 4
 
 [node name="TileMapBG" type="TileMapLayer" parent="."]
 visible = false
@@ -1262,10 +1263,12 @@ position = Vector2(1570, 230)
 [node name="SpikeTrap5" parent="." instance=ExtResource("2_gsbbr")]
 z_index = -1
 position = Vector2(1824, 540)
+trap_id = 5
 
 [node name="SpikeTrap6" parent="." instance=ExtResource("2_gsbbr")]
 z_index = -1
 position = Vector2(2143, 540)
+trap_id = 6
 
 [node name="StaticPlatform" parent="." instance=ExtResource("10_5dpfh")]
 position = Vector2(785, 312)
@@ -1302,10 +1305,12 @@ position = Vector2(2388, 319)
 [node name="FireTrap" parent="." instance=ExtResource("11_vlkw4")]
 z_index = -1
 position = Vector2(2542, 507)
+trap_id = 11
 
 [node name="FireTrap2" parent="." instance=ExtResource("11_vlkw4")]
 z_index = -1
 position = Vector2(2628, 508)
+trap_id = 12
 
 [node name="CrusherTrap2" parent="." instance=ExtResource("15_wa6rg")]
 position = Vector2(2793, 320)

@@ -7,7 +7,7 @@ extends Area2D
 @export var active_duration: float = 2.0  # Tiempo que está activa
 @export var cooldown_duration: float = 1.0  # Tiempo de recarga
 
-# Estados de la trampa (CONCURRENCIA - múltiples trampas con estados independientes)
+# Estados de la trampa ( múltiples trampas con estados independientes)
 enum TrapState {
 	INACTIVE,
 	ACTIVATING,
@@ -19,7 +19,7 @@ var current_state: TrapState = TrapState.INACTIVE
 var state_timer: float = 0.0
 var player_in_range: bool = false
 
-# Señales para comunicación (IPC/Comunicación entre objetos)
+# Señales para comunicación (Signals - Comunicación entre objetos)
 signal trap_activated(trap_id)
 signal trap_deactivated(trap_id)
 signal player_hit(trap_id)
@@ -40,7 +40,9 @@ func _ready():
 	original_position = sprite.position
 	
 	# En modo multijugador, desactivar activación automática
-	
+	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
+		auto_activate = false
+		
 	# Conectar señales de detección
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
@@ -53,7 +55,7 @@ func _process(delta):
 	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
 		return  # El cliente solo ve, no procesa
 	
-	# Gestión del estado de la trampa (CONCURRENCIA)
+	# Gestión del estado de la trampa
 	match current_state:
 		TrapState.INACTIVE:
 			if auto_activate and player_in_range:
@@ -121,7 +123,7 @@ func set_state(new_state: TrapState):
 	
 	update_visual()
 	
-		# ESTO ES LO IMPORTANTE: sincronizar por red
+		# Sincronizar por red
 	if multiplayer.is_server() and NetworkManager.is_multiplayer_active():
 		rpc("sync_trap_state", new_state)
 
