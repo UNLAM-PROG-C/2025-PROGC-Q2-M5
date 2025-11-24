@@ -50,28 +50,28 @@ anchor_left = 1.5870001
 anchor_top = 1.0
 anchor_right = 1.5870001
 anchor_bottom = 1.0
-offset_left = -1417.2241
-offset_top = -575.0
-offset_right = -1090.2241
-offset_bottom = -469.0
+offset_left = -2166.8423
+offset_top = -620.0
+offset_right = -800.8423
+offset_bottom = -514.0
 text = "¡Derrota!"
 label_settings = SubResource("LabelSettings_44pu4")
 horizontal_alignment = 1
 
 [node name="MenuBtn" type="Button" parent="."]
 layout_mode = 0
-offset_left = 87.0
-offset_top = 516.0
-offset_right = 211.0
-offset_bottom = 605.0
+offset_left = 137.0
+offset_top = 550.0
+offset_right = 261.0
+offset_bottom = 639.0
 text = "Volver al menú"
 
 [node name="ExitBtn" type="Button" parent="."]
 layout_mode = 0
-offset_left = 927.0
-offset_top = 516.0
-offset_right = 1095.0
-offset_bottom = 605.0
+offset_left = 1056.0
+offset_top = 554.0
+offset_right = 1224.0
+offset_bottom = 643.0
 text = "Salir"
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
@@ -79,13 +79,13 @@ text = "Salir"
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer"]
-position = Vector2(574.5, 321.5)
-scale = Vector2(0.9624999, 0.96148145)
+position = Vector2(687.5, 387.5)
+scale = Vector2(1.1508332, 1.1570371)
 texture = ExtResource("3_88ekj")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 light_mask = 21
-position = Vector2(593, 478)
+position = Vector2(703.00006, 531)
 scale = Vector2(3.8988085, 3.4005098)
 sprite_frames = SubResource("SpriteFrames_hsnnl")
 animation = &"Death"

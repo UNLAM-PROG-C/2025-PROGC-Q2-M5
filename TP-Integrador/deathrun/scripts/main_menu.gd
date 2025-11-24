@@ -21,9 +21,8 @@ func _on_single_player_pressed():
 	# Guardar el modo de juego en una variable global/autoload
 	GameManager.singleplayer = true
 	
-	# CAMBIA ESTA RUTA por donde esté tu level_01.tscn
 	# Verifica en el FileSystem la ruta exacta
-	var level_path = "res://scenes/levels/level_01.tscn"
+	var level_path = "res://scenes/levels/Level_01.tscn"
 	
 	
 	if ResourceLoader.exists(level_path):

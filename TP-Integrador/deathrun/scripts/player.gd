@@ -124,7 +124,19 @@ func die() -> void:
 	if vidas_actuales > 0:
 		respawn()
 	else:
-		game_over()
+		# Notificar game over a todos los jugadores
+		if NetworkManager.is_multiplayer_active():
+			# Si estamos en multiplayer, notificar a todos
+			rpc("sync_game_over")
+		else:
+			# Si es singleplayer, solo ejecutar localmente
+			game_over()
+			
+@rpc("any_peer", "call_local", "reliable")
+func sync_game_over():
+	"""Sincroniza el game over con todos los jugadores"""
+	print("[GAME OVER] Sincronizando fin de partida para todos los jugadores")
+	game_over()
 
 func respawn() -> void:
 	# Volver a animación base
@@ -140,6 +152,13 @@ func respawn() -> void:
 		collider.disabled = false
 
 func game_over() -> void:
+	# Desconectar de la red si estamos en multiplayer
+	if NetworkManager.is_multiplayer_active():
+		NetworkManager.disconnect_from_game()
+		GameManager.singleplayer = true
+	
+	# Espera para asegurar que el RPC llegue
+	await get_tree().create_timer(0.1).timeout
 	get_tree().change_scene_to_file("res://scenes/GameOver.tscn")
 	
 func _on_trap_area_entered(area: Node) -> void:

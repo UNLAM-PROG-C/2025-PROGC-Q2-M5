@@ -59,6 +59,8 @@ func _ready():
 # CREAR SERVIDOR
 # ============================================
 func create_server(port = DEFAULT_PORT):
+	disconnect_from_game()
+	
 	"""Crea un servidor (Host) e inicia el hilo worker"""
 	peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(port, MAX_PLAYERS)
@@ -83,6 +85,8 @@ func create_server(port = DEFAULT_PORT):
 # CONECTAR COMO CLIENTE
 # ============================================
 func join_server(address = "127.0.0.1", port = DEFAULT_PORT):
+	disconnect_from_game()
+	
 	"""Conecta a un servidor existente"""
 	peer = ENetMultiplayerPeer.new()
 	var error = peer.create_client(address, port)

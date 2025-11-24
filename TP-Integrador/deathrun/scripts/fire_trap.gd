@@ -40,7 +40,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	player = get_tree().get_first_node_in_group("player")
 	
-	# ✅ Desactivar auto-activación en cliente
+	# Desactivar auto-activación en cliente
 	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
 		auto_activate = false
 		print("[FireTrap %d] Modo cliente: auto-activación deshabilitada" % trap_id)
@@ -50,11 +50,11 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 func _process(delta: float) -> void:
-	# ✅ Solo el servidor procesa la lógica
+	# Solo el servidor procesa la lógica
 	if NetworkManager.is_multiplayer_active() and not multiplayer.is_server():
 		return
 	
-	# ✅ Máquina de estados (igual que spike_trap)
+	# Máquina de estados (igual que spike_trap)
 	match current_state:
 		TrapState.INACTIVE:
 			if auto_activate and player_in_range:
@@ -125,7 +125,7 @@ func set_state(new_state: TrapState):
 			sprite.play("idle")
 			trap_deactivated.emit(trap_id)
 	
-	# ✅ Sincronizar por red
+	# Sincronizar por red
 	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
 		rpc("sync_trap_state", new_state)
 
