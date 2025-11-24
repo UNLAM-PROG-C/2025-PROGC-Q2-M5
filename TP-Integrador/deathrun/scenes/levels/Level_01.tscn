@@ -1303,6 +1303,7 @@ parameters/looping = true
 
 [node name="CrusherTrap" parent="." instance=ExtResource("15_wa6rg")]
 position = Vector2(2388, 319)
+trap_id = 9
 
 [node name="FireTrap" parent="." instance=ExtResource("11_vlkw4")]
 z_index = -1
@@ -1316,6 +1317,7 @@ trap_id = 12
 
 [node name="CrusherTrap2" parent="." instance=ExtResource("15_wa6rg")]
 position = Vector2(2793, 320)
+trap_id = 10
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("16_teq4k")
