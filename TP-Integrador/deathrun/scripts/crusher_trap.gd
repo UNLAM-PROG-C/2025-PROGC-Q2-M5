@@ -110,7 +110,14 @@ func _start_cycle_server() -> void:
 	state = TrapState.DROPPING
 	_set_kill_enabled(true)
 	_update_visual()
+	
+	# Sincronizar ANTES del tween para que los clientes animen también
 	_sync_state_to_clients()
+	
+	# Notificar a los clientes que inicien el tween
+	if NetworkManager.is_multiplayer_active():
+		rpc("sync_drop_animation", original_y + drop_distance, drop_time)
+	
 	await _tween_y(original_y + drop_distance, drop_time, Tween.TRANS_QUAD, Tween.EASE_IN)
 
 	# 2) HOLDING
@@ -124,6 +131,11 @@ func _start_cycle_server() -> void:
 	state = TrapState.RAISING
 	_set_kill_enabled(false)
 	_update_visual()
+	
+	# Sincronizar animación de subida
+	if NetworkManager.is_multiplayer_active():
+		rpc("sync_rise_animation", original_y, rise_time)
+	
 	_sync_state_to_clients()
 	await _tween_y(original_y, rise_time, Tween.TRANS_SINE, Tween.EASE_OUT)
 
@@ -142,6 +154,47 @@ func _start_cycle_server() -> void:
 	busy = false
 	print("[Crusher %d] ✅ Ciclo completado" % trap_id)
 
+# RPC para animar la caída en clientes
+@rpc("authority", "call_remote", "reliable")
+func sync_drop_animation(target_y: float, duration: float) -> void:
+	"""Sincroniza la animación de caída en los clientes"""
+	if multiplayer.is_server():
+		return  # El servidor ya tiene su propia animación
+	
+	print("[Crusher %d] 📡 Cliente: Animando caída" % trap_id)
+	_tween_y(target_y, duration, Tween.TRANS_QUAD, Tween.EASE_IN)
+
+# RPC para animar la subida en clientes
+@rpc("authority", "call_remote", "reliable")
+func sync_rise_animation(target_y: float, duration: float) -> void:
+	"""Sincroniza la animación de subida en los clientes"""
+	if multiplayer.is_server():
+		return  # El servidor ya tiene su propia animación
+	
+	print("[Crusher %d] 📡 Cliente: Animando subida" % trap_id)
+	_tween_y(target_y, duration, Tween.TRANS_SINE, Tween.EASE_OUT)
+
+# Puedes simplificar o remover sync_crusher_state ya que ahora sincronizas las animaciones
+@rpc("authority", "call_remote", "reliable")
+func sync_crusher_state(state_i: int) -> void:
+	"""Recibe el estado desde el servidor (solo clientes)"""
+	if multiplayer.is_server():
+		return
+	
+	state = state_i as TrapState
+	# 🔥 Ya no teleportamos, las animaciones manejan la posición
+	# global_position.y = y_pos  # Comentar esta línea
+	_update_visual()
+	
+	# Activar/desactivar kill zone según el estado
+	match state:
+		TrapState.DROPPING, TrapState.HOLDING:
+			_set_kill_enabled(true)
+		_:
+			_set_kill_enabled(false)
+	
+	print("[Crusher %d] 📡 Estado sincronizado: %s" % [trap_id, _get_state_name()])
+
 func _tween_y(target_y: float, t: float, trans := Tween.TRANS_SINE, ease := Tween.EASE_IN_OUT) -> void:
 	"""Anima el movimiento vertical"""
 	var tw := create_tween().set_trans(trans).set_ease(ease)
@@ -153,25 +206,6 @@ func _sync_state_to_clients() -> void:
 	"""Sincroniza el estado actual a todos los clientes"""
 	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
 		rpc("sync_crusher_state", int(state), global_position.y)
-
-@rpc("authority", "call_remote", "reliable")
-func sync_crusher_state(state_i: int, y_pos: float) -> void:
-	"""Recibe el estado desde el servidor (solo clientes)"""
-	if multiplayer.is_server():
-		return  # El servidor no se sincroniza a sí mismo
-	
-	state = state_i as TrapState
-	global_position.y = y_pos
-	_update_visual()
-	
-	# Activar/desactivar kill zone según el estado
-	match state:
-		TrapState.DROPPING, TrapState.HOLDING:
-			_set_kill_enabled(true)
-		_:
-			_set_kill_enabled(false)
-	
-	print("[Crusher %d] 📡 Estado sincronizado: %s" % [trap_id, _get_state_name()])
 
 # =============== Utilidades ===========================
 func _set_kill_enabled(enabled: bool) -> void:
