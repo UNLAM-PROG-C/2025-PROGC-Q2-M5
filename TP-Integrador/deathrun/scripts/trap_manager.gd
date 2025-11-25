@@ -152,7 +152,7 @@ func _on_network_rpc_validated(message: Dictionary):
 		print("[TrapManager] ⚠️ No se pudo activar la trampa %d" % trap_id)
 
 # ============================================
-# API PÚBLICA (Sin cambios significativos)
+# API PÚBLICA
 # ============================================
 
 func activate_trap(trap_id: int) -> bool:

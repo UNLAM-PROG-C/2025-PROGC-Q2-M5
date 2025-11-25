@@ -38,8 +38,6 @@ signal server_started
 # ============================================
 # SEÑALES PARA EL HILO
 # ============================================
-signal rpc_message_queued(message_type: String)
-signal rpc_message_processed(message_type: String, success: bool)
 signal rpc_message_validated(message: Dictionary)
 
 func _ready():
@@ -275,9 +273,6 @@ func _on_rpc_validated(message: Dictionary):
 	
 	messages_processed += 1
 	
-	# Emitir señal para que otros sistemas reaccionen
-	rpc_message_processed.emit(message.type, message.get("valid", false))
-	
 	# Si el mensaje no es válido, rechazar
 	if not message.get("valid", false):
 		print("[MAIN] ⚠️ Mensaje RECHAZADO: %s" % message.get("error", "Error desconocido"))
@@ -327,9 +322,6 @@ func enqueue_rpc_message(message_type: String, sender_id: int, data: Dictionary)
 	messages_queued += 1
 	
 	print("[MAIN] Cola tiene %d mensajes pendientes" % queue_size)
-	
-	# Emitir señal
-	rpc_message_queued.emit(message_type)
 	
 	# Despertar al hilo worker
 	queue_semaphore.post()
