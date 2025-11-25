@@ -1252,6 +1252,8 @@ script = ExtResource("3_qtqmo")
 [node name="TrapMaster" type="Node2D" parent="."]
 script = ExtResource("4_rd8yo")
 
+[node name="Camera2D" type="Camera2D" parent="TrapMaster"]
+
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2(-1088, 370)
 

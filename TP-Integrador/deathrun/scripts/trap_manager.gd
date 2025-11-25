@@ -90,6 +90,11 @@ func _on_player_hit(trap_id):
 	stats.total_hits += 1
 	player_hit_trap.emit(trap_id)
 	print("[TrapManager] ¡Jugador golpeado por trampa %d! (Total hits: %d)" % [trap_id, stats.total_hits])
+	
+func get_trap_by_id(trap_id: int) -> Node2D:
+	if registered_traps.has(trap_id):
+		return registered_traps[trap_id]
+	return null
 
 # ============================================
 # RPC MODIFICADO PARA USAR SISTEMA DE HILOS
