@@ -104,9 +104,6 @@ func get_trap_by_id(trap_id: int) -> Node2D:
 func remote_activate_trap(trap_id: int):
 	"""
 	Recibe petición RPC de activación de trampa.
-	
-	ANTES: Procesaba directamente en el hilo principal (bloqueante)
-	AHORA: Encola el mensaje para que el hilo worker lo procese
 	"""
 	# Solo el servidor procesa activaciones de trampas
 	if not multiplayer.is_server():
@@ -116,7 +113,7 @@ func remote_activate_trap(trap_id: int):
 	
 	print("[TrapManager] RPC recibido: activate_trap(%d) de jugador %d" % [trap_id, sender_id])
 	
-	# === NUEVO: Encolar mensaje en el NetworkManager ===
+	# Encolar mensaje en el NetworkManager ===
 	# En lugar de procesar directamente, enviamos al hilo worker
 	NetworkManager.enqueue_rpc_message(
 		"activate_trap",  # Tipo de mensaje
@@ -129,7 +126,7 @@ func remote_activate_trap(trap_id: int):
 	print("[TrapManager] Mensaje encolado para procesamiento en hilo worker")
 
 # ============================================
-# CALLBACK DESDE EL HILO WORKER (NUEVO)
+# CALLBACK DESDE EL HILO WORKER
 # ============================================
 
 func _on_network_rpc_validated(message: Dictionary):

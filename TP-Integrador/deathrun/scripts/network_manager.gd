@@ -335,7 +335,7 @@ func enqueue_rpc_message(message_type: String, sender_id: int, data: Dictionary)
 	queue_semaphore.post()
 
 # ============================================
-# CALLBACKS DE RED (Sin cambios)
+# CALLBACKS DE RED
 # ============================================
 
 func _on_player_connected(id):
@@ -364,7 +364,7 @@ func _on_server_disconnected():
 	multiplayer.multiplayer_peer = null
 
 # ============================================
-# UTILIDADES (Sin cambios)
+# UTILIDADES
 # ============================================
 
 func is_multiplayer_active():
@@ -380,7 +380,7 @@ func is_server():
 	return multiplayer.is_server()
 
 # ============================================
-# ESTADÍSTICAS Y DEBUGGING (NUEVO)
+# ESTADÍSTICAS Y DEBUGGING
 # ============================================
 
 func get_queue_size() -> int:
