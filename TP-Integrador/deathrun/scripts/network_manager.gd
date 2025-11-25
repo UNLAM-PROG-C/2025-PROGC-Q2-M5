@@ -165,13 +165,13 @@ func _process_rpc_in_worker(message: Dictionary):
 	"""
 	Procesa y valida un mensaje RPC en el HILO WORKER
 	
-	Aquí puedes hacer:
+	Se puede:
 	- Validaciones complejas
 	- Cálculos pesados
 	- Simulaciones
 	- Comprobaciones de seguridad
 	
-	¡NO puedes hacer!
+	No se puede:
 	- Acceder a nodos: TrapManager.activate_trap() ❌
 	- Modificar la escena
 	- Crear/destruir nodos
@@ -229,14 +229,13 @@ func _validate_trap_activation(message: Dictionary):
 		return
 	
 	# VALIDACIÓN 3: Simular validación compleja
-	# Aquí podrías:
 	# - Verificar cooldowns
 	# - Consultar base de datos
 	# - Validar estado del juego
 	# - Anti-cheat checks
 	OS.delay_msec(30)  # Simula trabajo pesado (30ms)
 	
-	# Si llegamos aquí, el mensaje es válido
+	# El mensaje es válido
 	message["valid"] = true
 	print("[WORKER] ✓ Trampa %d validada correctamente" % trap_id)
 
@@ -256,6 +255,7 @@ func _validate_player_action(message: Dictionary):
 	# Simular validación
 	OS.delay_msec(20)
 	
+	# El mensaje es válido
 	message["valid"] = true
 	print("[WORKER] ✓ Acción '%s' validada" % action)
 
@@ -264,7 +264,7 @@ func _on_rpc_validated(message: Dictionary):
 	Callback que corre en el HILO PRINCIPAL después de que
 	el worker terminó de procesar el mensaje.
 	
-	Aquí SÍ puedes:
+	Se puede:
 	- Acceder a nodos
 	- Modificar la escena
 	- Activar trampas
