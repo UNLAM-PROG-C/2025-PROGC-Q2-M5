@@ -34,7 +34,7 @@ func _ready() -> void:
 	monitoring = true
 	monitorable = true
 
-	hit_shape.disabled = true
+	hit_shape.disabled = false
 	sprite.play("idle")
 
 	await get_tree().process_frame
@@ -94,19 +94,22 @@ func activate():
 	trap_activated.emit(trap_id)
 
 func set_state(new_state: TrapState):
-	"""Cambia el estado de la trampa"""
 	print("[FireTrap %d] Cambiando estado a: %s" % [trap_id, _state_to_string(new_state)])
 	current_state = new_state
 	
 	match new_state:
 		TrapState.INACTIVE:
 			state_timer = 0
-			hit_shape.set_deferred("disabled", true)
+			# ANTES:
+			# hit_shape.set_deferred("disabled", true)
+			# AHORA: siempre habilitado para poder detectar al jugador
+			hit_shape.set_deferred("disabled", false)
 			sprite.play("idle")
 		
 		TrapState.ACTIVANDO:
 			state_timer = activando_duration
-			hit_shape.set_deferred("disabled", true)
+			# Podés dejarlo habilitado también, no mata igual porque mirás el estado:
+			hit_shape.set_deferred("disabled", false)
 			sprite.play("activando")
 		
 		TrapState.ACTIVADO:
@@ -116,14 +119,15 @@ func set_state(new_state: TrapState):
 		
 		TrapState.APAGANDO:
 			state_timer = apagar_duration
-			hit_shape.set_deferred("disabled", true)
+			# Podés elegir: dejarlo habilitado para seguir detectando rango
+			hit_shape.set_deferred("disabled", false)
 			sprite.play("apagar")
 		
 		TrapState.COOLDOWN:
 			state_timer = cooldown_duration
-			hit_shape.set_deferred("disabled", true)
+			hit_shape.set_deferred("disabled", false)
 			sprite.play("idle")
-			trap_deactivated.emit(trap_id)
+
 	
 	# Sincronizar por red
 	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
