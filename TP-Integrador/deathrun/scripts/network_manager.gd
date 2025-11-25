@@ -38,8 +38,6 @@ signal server_started
 # ============================================
 # SEÑALES PARA EL HILO
 # ============================================
-signal rpc_message_queued(message_type: String)
-signal rpc_message_processed(message_type: String, success: bool)
 signal rpc_message_validated(message: Dictionary)
 
 func _ready():
@@ -59,6 +57,8 @@ func _ready():
 # CREAR SERVIDOR
 # ============================================
 func create_server(port = DEFAULT_PORT):
+	disconnect_from_game()
+	
 	"""Crea un servidor (Host) e inicia el hilo worker"""
 	peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(port, MAX_PLAYERS)
@@ -83,6 +83,8 @@ func create_server(port = DEFAULT_PORT):
 # CONECTAR COMO CLIENTE
 # ============================================
 func join_server(address = "127.0.0.1", port = DEFAULT_PORT):
+	disconnect_from_game()
+	
 	"""Conecta a un servidor existente"""
 	peer = ENetMultiplayerPeer.new()
 	var error = peer.create_client(address, port)
@@ -161,13 +163,13 @@ func _process_rpc_in_worker(message: Dictionary):
 	"""
 	Procesa y valida un mensaje RPC en el HILO WORKER
 	
-	Aquí puedes hacer:
+	Se puede:
 	- Validaciones complejas
 	- Cálculos pesados
 	- Simulaciones
 	- Comprobaciones de seguridad
 	
-	¡NO puedes hacer!
+	No se puede:
 	- Acceder a nodos: TrapManager.activate_trap() ❌
 	- Modificar la escena
 	- Crear/destruir nodos
@@ -225,14 +227,13 @@ func _validate_trap_activation(message: Dictionary):
 		return
 	
 	# VALIDACIÓN 3: Simular validación compleja
-	# Aquí podrías:
 	# - Verificar cooldowns
 	# - Consultar base de datos
 	# - Validar estado del juego
 	# - Anti-cheat checks
 	OS.delay_msec(30)  # Simula trabajo pesado (30ms)
 	
-	# Si llegamos aquí, el mensaje es válido
+	# El mensaje es válido
 	message["valid"] = true
 	print("[WORKER] ✓ Trampa %d validada correctamente" % trap_id)
 
@@ -252,6 +253,7 @@ func _validate_player_action(message: Dictionary):
 	# Simular validación
 	OS.delay_msec(20)
 	
+	# El mensaje es válido
 	message["valid"] = true
 	print("[WORKER] ✓ Acción '%s' validada" % action)
 
@@ -260,7 +262,7 @@ func _on_rpc_validated(message: Dictionary):
 	Callback que corre en el HILO PRINCIPAL después de que
 	el worker terminó de procesar el mensaje.
 	
-	Aquí SÍ puedes:
+	Se puede:
 	- Acceder a nodos
 	- Modificar la escena
 	- Activar trampas
@@ -270,9 +272,6 @@ func _on_rpc_validated(message: Dictionary):
 	print("[MAIN] ¿Válido?: %s" % ("SÍ" if message.get("valid", false) else "NO"))
 	
 	messages_processed += 1
-	
-	# Emitir señal para que otros sistemas reaccionen
-	rpc_message_processed.emit(message.type, message.get("valid", false))
 	
 	# Si el mensaje no es válido, rechazar
 	if not message.get("valid", false):
@@ -324,14 +323,11 @@ func enqueue_rpc_message(message_type: String, sender_id: int, data: Dictionary)
 	
 	print("[MAIN] Cola tiene %d mensajes pendientes" % queue_size)
 	
-	# Emitir señal
-	rpc_message_queued.emit(message_type)
-	
 	# Despertar al hilo worker
 	queue_semaphore.post()
 
 # ============================================
-# CALLBACKS DE RED (Sin cambios)
+# CALLBACKS DE RED
 # ============================================
 
 func _on_player_connected(id):
@@ -360,12 +356,12 @@ func _on_server_disconnected():
 	multiplayer.multiplayer_peer = null
 
 # ============================================
-# UTILIDADES (Sin cambios)
+# UTILIDADES
 # ============================================
 
 func is_multiplayer_active():
 	"""Verifica si hay una sesión multijugador activa"""
-	return multiplayer.multiplayer_peer != null
+	return GameManager.singleplayer == false
 
 func get_player_id():
 	"""Retorna el ID único del jugador"""
@@ -376,7 +372,7 @@ func is_server():
 	return multiplayer.is_server()
 
 # ============================================
-# ESTADÍSTICAS Y DEBUGGING (NUEVO)
+# ESTADÍSTICAS Y DEBUGGING
 # ============================================
 
 func get_queue_size() -> int:

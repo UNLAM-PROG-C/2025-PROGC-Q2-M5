@@ -7,6 +7,8 @@ extends Node2D
 var trap_manager: Node = null
 var available_traps: Array = []
 var selected_trap_index: int = 0
+@onready var camera = $Camera2D
+var following_runner: bool = true
 
 # UI
 var label: Label = null
@@ -18,8 +20,6 @@ func _ready():
 	print("=== TrapMaster _ready() iniciado ===")
 	print("  -> NetworkManager.is_multiplayer_active(): ", NetworkManager.is_multiplayer_active())
 	print("  -> multiplayer.is_server(): ", multiplayer.is_server())
-	
-	
 	# Buscar el TrapManager en el nivel
 	trap_manager = get_node_or_null("/root/Level01/TrapManager")
 	print("  -> TrapManager encontrado: ", trap_manager != null)
@@ -67,6 +67,24 @@ func create_ui():
 	canvas_layer.add_child(label)
 	
 	update_ui()
+func focus_on_selected_trap() -> void:
+	if camera == null:
+		return
+	if available_traps.is_empty():
+		return
+
+	var trap_id = available_traps[selected_trap_index]
+	var trap = trap_manager.get_trap_by_id(trap_id)
+	if trap:
+		# Teletransporte directo
+		camera.global_position = trap.global_position
+		
+func _follow_runner(delta):
+	var runner = get_node_or_null("/root/Level01/player")
+	if not runner or not camera:
+		return
+	var target = runner.global_position
+	camera.global_position = camera.global_position.lerp(target, delta * 3.0)
 
 func update_ui():
 	"""Actualiza el texto de la UI"""
@@ -97,6 +115,10 @@ func update_ui():
 func _process(_delta):
 	update_available_traps()
 	update_ui()
+	if following_runner:
+		_follow_runner(_delta)
+	else:
+		focus_on_selected_trap()
 
 func _input(event):
 	if not trap_manager:
@@ -122,13 +144,13 @@ func change_selected_trap(direction: int):
 		return
 	
 	selected_trap_index += direction
-	
+	following_runner = false
 	# Wrap around
 	if selected_trap_index < 0:
 		selected_trap_index = available_traps.size() - 1
 	elif selected_trap_index >= available_traps.size():
 		selected_trap_index = 0
-	
+	focus_on_selected_trap()
 	print("Trap Master: Trampa %d seleccionada" % available_traps[selected_trap_index])
 
 func activate_selected_trap():

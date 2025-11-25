@@ -3,7 +3,7 @@ extends Node
 # --- tu config actual ---
 @export var victory_ui_scene: PackedScene = null  # (ya no lo usamos en single)
 
-var game_mode: String = "single"
+var singleplayer: bool = true
 var total_deaths: int = 0
 var total_games: int = 0
 
@@ -32,20 +32,47 @@ func register_death() -> void:
 func get_elapsed_time() -> float:
 	return max(0.0, (Time.get_ticks_msec() * 0.001) - level_started_at)
 
-# === NUEVO: terminar nivel cambiando de escena al WinMenu ===
 func finish_level() -> void:
 	if not level_running:
 		return
 	level_running = false
 
-	# Guardar stats para que el WinMenu las lea
+	# Guardar stats para que el WinMenu las lea (para el que gane)
 	last_run_time = get_elapsed_time()
 	last_run_deaths = run_deaths
 
+	if NetworkManager.is_multiplayer_active():
+		# En multi: el runner llegó al portal → gana el runner
+		# Este RPC lo ejecutan todos y cada uno decide qué escena mostrar
+		rpc("sync_end_match", "runner")
+		return
+
+	# --- SINGLEPLAYER como antes ---
 	var tree := get_tree()
 	if tree == null:
 		push_error("SceneTree es null: no puedo cambiar al WinMenu.")
 		return
 
-	# Cambiar de escena (tu ruta)
 	tree.change_scene_to_file("res://scenes/WinMenu.tscn")
+
+	
+@rpc("any_peer", "call_local", "reliable")
+func sync_end_match(winner_role: String) -> void:
+	print("[GameManager] Fin de partida. Ganador:", winner_role)
+
+	# 1) Me guardo mi rol local
+	var my_role: String = NetworkManager.player_role
+	var i_win: bool = (my_role == winner_role)
+
+	# 2) Cambio de escena según si gané o no
+	var tree := get_tree()
+	if tree == null:
+		push_error("SceneTree es null: no puedo cambiar escena de fin de partida.")
+		return
+
+	if i_win:
+		# Escena de victoria (ya la usabas)
+		tree.change_scene_to_file("res://scenes/WinMenu.tscn")
+	else:
+		# Escena de derrota (la misma que usaba tu player.game_over())
+		tree.change_scene_to_file("res://scenes/GameOver.tscn")

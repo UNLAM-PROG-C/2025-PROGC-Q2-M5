@@ -3,7 +3,7 @@
 MainMenu (Inicio)
     │
     ├─► [Botón Single Player]
-    │   └─► GameManager.game_mode = "single"
+    │   └─► GameManager.singleplayer = true
     │       └─► Cambia a Level_01.tscn
     │
     ├─► [Botón Multiplayer]
