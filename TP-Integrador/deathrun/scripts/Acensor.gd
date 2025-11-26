@@ -2,7 +2,7 @@ extends AnimatableBody2D
 
 @export var pixels_down: float = 200.0
 @export var descend_time: float = 0.8
-@export var bottom_wait: float = 3.0      # ⬅️ espera abajo antes de subir
+@export var bottom_wait: float = 3.0
 @export var ascend_time: float = 0.8
 
 @onready var col_shape: CollisionShape2D = $CollisionShape2D
