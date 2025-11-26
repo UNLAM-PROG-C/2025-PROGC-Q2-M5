@@ -110,13 +110,3 @@ func reset_position():
 	is_waiting = false
 	wait_timer = 0.0
 	has_completed_cycle = false
-
-# Métodos para activación por TrapMaster (opcional)
-func activate():
-	"""Activa la plataforma (compatible con TrapMaster)"""
-	if not is_moving:
-		start_moving()
-
-func deactivate():
-	"""Desactiva la plataforma"""
-	stop_moving()

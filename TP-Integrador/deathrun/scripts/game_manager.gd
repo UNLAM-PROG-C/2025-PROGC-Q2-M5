@@ -42,12 +42,11 @@ func finish_level() -> void:
 	last_run_deaths = run_deaths
 
 	if NetworkManager.is_multiplayer_active():
-		# En multi: el runner llegó al portal → gana el runner
 		# Este RPC lo ejecutan todos y cada uno decide qué escena mostrar
 		rpc("sync_end_match", "runner")
 		return
 
-	# --- SINGLEPLAYER como antes ---
+	# --- SINGLEPLAYER ---
 	var tree := get_tree()
 	if tree == null:
 		push_error("SceneTree es null: no puedo cambiar al WinMenu.")
@@ -71,8 +70,8 @@ func sync_end_match(winner_role: String) -> void:
 		return
 
 	if i_win:
-		# Escena de victoria (ya la usabas)
+		# Escena de victoria
 		tree.change_scene_to_file("res://scenes/WinMenu.tscn")
 	else:
-		# Escena de derrota (la misma que usaba tu player.game_over())
+		# Escena de derrota
 		tree.change_scene_to_file("res://scenes/GameOver.tscn")

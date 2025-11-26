@@ -41,7 +41,7 @@ func _ready() -> void:
 	# La zona que mata solo se usa durante la caída/hold
 	_set_kill_enabled(false)
 	
-	# 🔥 CLAVE: En modo multijugador, desactivar activación automática
+	# En modo multijugador, desactivar activación automática
 	if NetworkManager.is_multiplayer_active() and multiplayer.is_server():
 		auto_activate = false
 		print("[Crusher %d] Modo multijugador: auto_activate = false" % trap_id)
@@ -58,7 +58,7 @@ func _on_trigger_enter(body: Node) -> void:
 	
 	player_in_trigger = true
 	
-	# 🔥 Solo activar automáticamente si está permitido
+	# Solo activar automáticamente si está permitido
 	if auto_activate:
 		_try_start_cycle_server()
 
@@ -182,7 +182,7 @@ func sync_crusher_state(state_i: int) -> void:
 		return
 	
 	state = state_i as TrapState
-	# 🔥 Ya no teleportamos, las animaciones manejan la posición
+	# Ya no teleportamos, las animaciones manejan la posición
 	# global_position.y = y_pos  # Comentar esta línea
 	_update_visual()
 	
