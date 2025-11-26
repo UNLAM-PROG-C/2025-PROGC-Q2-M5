@@ -4,13 +4,13 @@
 [ext_resource type="Texture2D" uid="uid://bosnfixcyxl84" path="res://assets/4 Conjoined Spikes.png" id="2_38t1v"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dhg77"]
-size = Vector2(155, 36)
+size = Vector2(160, 36)
 
 [node name="SpikeTrap" type="Area2D"]
 script = ExtResource("1_pw4ax")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(2.5, -17)
+position = Vector2(2, -17)
 shape = SubResource("RectangleShape2D_dhg77")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

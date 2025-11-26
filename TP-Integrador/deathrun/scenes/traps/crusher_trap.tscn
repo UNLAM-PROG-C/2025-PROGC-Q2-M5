@@ -7,7 +7,7 @@
 size = Vector2(156, 67)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mysd2"]
-size = Vector2(90, 30)
+size = Vector2(154, 30)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5u28g"]
 size = Vector2(81, 19.40625)
@@ -24,7 +24,7 @@ shape = SubResource("RectangleShape2D_c7ce4")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone"]
 light_mask = 3
 visibility_layer = 16
-position = Vector2(-2, 37)
+position = Vector2(-1, 37)
 shape = SubResource("RectangleShape2D_mysd2")
 
 [node name="TriggerZone" type="Area2D" parent="."]

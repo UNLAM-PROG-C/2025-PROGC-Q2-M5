@@ -85,10 +85,10 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dovo2"]
-size = Vector2(42, 44)
+size = Vector2(36, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gmlin"]
-size = Vector2(41, 43.5)
+size = Vector2(34, 43.5)
 
 [node name="player" type="CharacterBody2D" groups=["player"]]
 script = ExtResource("1_8afob")
@@ -101,13 +101,13 @@ sprite_frames = SubResource("SpriteFrames_5gtgg")
 autoplay = "default"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(1, 2)
+position = Vector2(-2, 2)
 shape = SubResource("RectangleShape2D_dovo2")
 
 [node name="TrapDetector" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="TrapDetector"]
-position = Vector2(1.5, 2.25)
+position = Vector2(-2, 2.25)
 shape = SubResource("RectangleShape2D_gmlin")
 
 [connection signal="area_entered" from="TrapDetector" to="." method="_on_trap_detector_area_entered"]

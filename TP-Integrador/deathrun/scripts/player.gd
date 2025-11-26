@@ -2,7 +2,7 @@ extends CharacterBody2D
 
 # ===== Constantes de movimiento =====
 const SPEED: float = 180.0
-const JUMP_VELOCITY: float = -250.0
+const JUMP_VELOCITY: float = -255.0
 const MAX_JUMPS: int = 2
 # Umbral para considerar "quieto" (evita ruido/velocidad residual)
 const IDLE_EPS: float = 5.0

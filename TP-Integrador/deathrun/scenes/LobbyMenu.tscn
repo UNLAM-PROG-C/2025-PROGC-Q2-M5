@@ -23,10 +23,10 @@ color = Color(0.24356923, 0.24356923, 0.24356923, 1)
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 custom_minimum_size = Vector2(400, 300)
 layout_mode = 0
-offset_left = 400.0
+offset_left = 475.0
 offset_top = 250.0
-offset_right = 468.0
-offset_bottom = 344.0
+offset_right = 875.0
+offset_bottom = 550.0
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 layout_mode = 2
@@ -52,7 +52,7 @@ text = "Volver"
 [node name="LabelStatus" type="Label" parent="."]
 layout_mode = 0
 offset_top = 500.0
-offset_right = 1151.0
+offset_right = 1365.0
 offset_bottom = 523.0
 text = "Esperando..."
 horizontal_alignment = 1
