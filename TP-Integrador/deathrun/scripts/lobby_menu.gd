@@ -48,7 +48,7 @@ func _on_join_pressed():
 func _on_back_pressed():
 	"""Volver al menú principal"""
 	NetworkManager.disconnect_from_game()
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
 # === Callbacks de red ===
 func _on_server_started():
